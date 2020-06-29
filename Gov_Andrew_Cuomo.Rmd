@@ -1,0 +1,49 @@
+---
+title: "New York  State's Battle with COVID-19"
+author: "David J Jackson"
+date: "6/29/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,fig.width=9, fig.height=6)
+library(tidyverse)
+library(RSQLite)
+theme_set(theme_light())
+```
+
+```{r}
+db <- dbConnect(SQLite(), dbname="../COVIDDB/CORVID.sqlite3")
+us_states <- dbGetQuery(db, "SELECT state,date,cases,deaths FROM us_states;")
+us_states$date <-as.Date(us_states$date)
+NYY <- us_states %>% filter(state =="New York")
+```
+```{r}
+YANKEE <- dbGetQuery(db, "SELECT state,date,new_cases,new_deaths FROM STATESDAILY;")
+YANKEE$date <-as.Date(YANKEE$date)
+YANKEE <- YANKEE %>% filter(state =="New York")
+```
+
+## Gov. Andrew Cuomo COVID-19 Grade Card
+#### New State's Running Totals for Cases and Deaths
+
+```{r}
+NYY %>% ggplot(aes(x=date,y=cases)) + geom_line() +
+  labs(title="New York State COVID-19 Cases: Running Total")
+```
+```{r}
+NYY %>% ggplot(aes(x=date,y=deaths)) + geom_col()
+  labs(title="New York State COVID-19 Deaths: Running Total")
+```
+
+### New York State's Weekly Totals for Cases and Deaths
+
+```{r}
+YANKEE %>% ggplot(aes(x=date,y=new_deaths)) + geom_col() +
+  labs(title="New York State COVID-19 Deaths: Daily Totals")
+```
+```{r}
+YANKEE %>% ggplot(aes(x=date,y=new_cases)) + geom_col() +
+  labs(title="New York State COVID-19 Cases: Daily Totals")
+```
+
